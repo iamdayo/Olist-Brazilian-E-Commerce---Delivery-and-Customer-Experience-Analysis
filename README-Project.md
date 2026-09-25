@@ -241,24 +241,22 @@ Three checks, same answer. Sellers take 2 days to dispatch whether the customer 
 
 > **Olist's delivery problem is a carrier problem. Seller-facing interventions will not move the number.**
 
-### Missing the promise costs more than the length of the delay:
+### Customers punish the broken promise, not the wait:
 
-| Lateness band   | Orders | Avg score | 1★    | 2★    | 3★    | 4★    | 5★    |
-| --------------- | ------ | --------- | ----- | ----- | ----- | ----- | ----- |
-| On time         | 89,443 | **4.29**  | 6.6%  | 2.7%  | 8.1%  | 20.4% | 62.3% |
-| 1-5 days late   | 2,722  | **2.99**  | 33.6% | 7.5%  | 13.6% | 17.0% | 28.3% |
-| 6-15 days late  | 2,479  | 1.74      | 68.5% | 9.7%  | 8.9%  | 5.0%  | 7.9%  |
-| 16-30 days late | 851    | 1.60      | 71.8% | 10.6% | 8.8%  | 3.8%  | 5.1%  |
-| 31-45 days late | 185    | 1.68      | 74.1% | 4.9%  | 8.6%  | 3.8%  | 8.6%  |
-| 45+ days late   | 144    | 2.54      | 49.3% | 4.2%  | 9.7%  | 16.7% | 20.1% |
+| Lateness | Reviewed orders | Avg score | 1★ | 2★ | 3★ | 4★ | 5★ |
+|---|---|---|---|---|---|---|---|
+| On time | 89,443 | 4.29 | 6.6% | 2.7% | 8.1% | 20.4% | 62.3% |
+| 1-5 days | 2,722 | 2.99 | 33.6% | 7.5% | 13.6% | 17.0% | 28.3% |
+| 6-15 days | 2,479 | 1.74 | 68.5% | 9.7% | 8.9% | 5.0% | 7.9% |
+| 16-30 days | 851 | 1.60 | 71.8% | 10.6% | 8.8% | 3.8% | 5.1% |
+| 31-45 days | 185 | 1.68 | 74.1% | 4.9% | 8.6% | 3.8% | 8.6% |
+| 45+ days | 144 | 2.54 | 49.3% | 4.2% | 9.7% | 16.7% | 20.1% |
 
-This is the finding with the clearest operational consequence.
+**On-time** orders score 4.29. **One to five days late scores 2.99.** That is a 1.3 point drop for being less than a week late. After that the score barely moves: 6-15 days and 31-45 days are almost the same, 1.74 against 1.68.
 
-On time scores 4.29. **One to five days late scores 2.99.** That is a 1.3-point collapse for less than a week's delay, and it is steeper than every subsequent band combined - between 6-15 days and 31-45 days the score barely moves at all, from 1.74 to 1.68.
+So how long the delay lasts barely matters. What matters is whether the delivery date was met.
 
-Customers are not scoring the length of the delay. They are scoring whether the promise was kept. Once it is broken, breaking it further costs almost nothing.
-
-The implication runs against instinct: **setting realistic delivery estimates would improve satisfaction more than shaving days off actual delivery time.** A padded estimate that is met beats an optimistic one that is missed by two days.
+**Giving customers a longer, more realistic delivery date would raise scores more than delivering faster would.** A date that is met beats an optimistic one that is missed by two days.
 
 ### The worst deliveries are rated by two opposed camps:
 
