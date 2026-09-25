@@ -262,69 +262,48 @@ So how long the delay lasts barely matters. What matters is whether the delivery
 
 <img width="552" height="279" alt="image" src="https://github.com/user-attachments/assets/637b4997-7a32-457e-9278-eef781dc4f04" />
 
-The 45+ band breaks the pattern by scoring 2.54 where the other late bands above it sit near 1.6. A mean of 2.54 could mean everyone was mildly annoyed. 49.3% gave 1 star and 36.8% gave 4 or 5 — two opposite reactions to the same delivery.
+The 45+ band breaks the pattern by scoring 2.54 where the other late bands above it sit near 1.6. 
+The 2.54 average is not one group of mildly annoyed customers and of the **144** reviews in this band, 49.3% gave 1 star and 36.8% gave 4 or 5, these are two opposite reactions to the same delivery.
 
-Three candidate explanations, none of which this data can separate:
+Three possible explanations, none of which are provable with this data:
 
-1. **Response selection** - the angriest customers disputed, refunded and moved on, and are not filling in a survey two months later
-2. **Survivorship** - orders that were 45+ days late and never arrived have no delivery date, so they are excluded entirely. The band contains only the parcels that eventually turned up
-3. **Relief** - once a parcel is assumed lost, arrival becomes a positive surprise
+- The angriest customers asked for a refund and moved on. These are custmers who are not possibly filling a survey two months later.
+- Orders that never arrived have no delivery date, so they are not in this band at all. It only holds parcels that eventually turned up.
+- After waiting that long, customers assume the parcel is lost and when it finally arrives, it feels like good news.
 
-Reported as an open question rather than resolved, because resolving it would need the review text, which could not be imported.
+One thing to note was that **6.6% of on-time orders still score one star**, which is close to 6,000 of them. Delivery explains most of the bad reviews here. It does not explain all of them.
 
-One more number from that table deserves attention: **6.6% of on-time orders still score one star**, close to 6,000 orders. Delivery explains most of the dissatisfaction on this platform. It does not explain all of it.
+### Boleto approvals are the customer's delay, not Olist's:
 
-### Slow boleto approvals are the customer's delay, not Olist's:
+| Payment type | Orders | Slow (>5 days) | Rate |
+|---|---|---|---|
+| debit_card | 1,515 | 9 | 0.594% |
+| boleto | 19,523 | 97 | 0.497% |
+| voucher | 3,745 | 4 | 0.107% |
+| credit_card | 75,615 | 40 | 0.053% |
 
-| Payment type | Orders | Slow approvals (>5 days) | Rate       |
-| ------------ | ------ | ------------------------ | ---------- |
-| debit_card   | 1,515  | 9                        | 0.594%     |
-| boleto       | 19,523 | **97**                   | 0.497%     |
-| voucher      | 3,745  | 4                        | 0.107%     |
-| credit_card  | 75,615 | 40                       | **0.053%** |
+Boleto orders are likely to take over **5 days** to get approved, which is about 9x more time than credit card time takes, and it shows. 97 of the 149 slow orders are boleto payment types.
 
-Boleto is roughly **9 times more likely** than credit card to take more than five days to approve, and accounts for 97 of the 149 slow orders despite being a minority payment method. The skew runs opposite to volume, which is what makes it a finding rather than an artefact of boleto being common.
+_Boleto bancário is a printed bank slip. The customer checks out, gets a barcode, then pays it at a bank, ATM or app whenever they choose. The merchant sees nothing until the payment clears. So the purchase timestamp records when the slip was printed, and the approval timestamp records when the money arrived. The gap between them is the customer's own delay, not Olist's._
 
-Boleto bancário is a printed bank slip. The customer checks out, receives a barcode, and then pays it at a bank, ATM, lottery agent or banking app **whenever they choose**. The merchant sees nothing until it clears. So `order_purchase_timestamp` records when the customer generated the slip and `order_approved_at` records when the money arrived. The gap between them is the customer's own delay.
+This also explains the `created` order status where slips were generated and never paid.
 
-This also explains the `created` status: slips generated and never paid.
+Once payment clears, boleto orders are delivered slightly faster than credit card ones. The whole difference sits in the approval stage. Payment type changes how long the customer waited, not how well Olist performed.
 
-Measured after approval, boleto is marginally **faster** than credit card:
+### Freight rises with weight and with distance:
 
-| Payment type | Avg approval | Avg total delivery | Post-approval |
-| ------------ | ------------ | ------------------ | ------------- |
-| boleto       | 1.77         | 13.41              | 11.64         |
-| voucher      | 0.33         | 12.46              | 12.13         |
-| credit_card  | 0.19         | 12.29              | 12.10         |
-| debit_card   | 0.39         | 10.73              | 10.34         |
+| Item | Freight |
+|---|---|
+| The middle item | R$16.26 |
+| 90% of items cost less than | R$34.04 |
+| 99% of items cost less than | R$84.52 |
+| The most expensive item | R$409.68 |
 
-Boleto's total is 1.1 days longer than credit card and its approval gap is 1.58 days longer, so the entire difference sits in approval.
+- Shipping is cheap for almost everything. 9 out of 10 items cost under R$34 to ship. But the last 1% runs from R$85 up to R$410, so a small number of items cost far more to move than the rest.
 
-The precise version matters here. Payment method affects **total elapsed time**, because the customer's clock starts at checkout and they genuinely waited longer. It does not affect **operational performance**. Anyone measuring purchase-to-doorstep by payment type would find boleto looks worse, and would be right about the experience but wrong about the cause.
-
-### Freight is driven by weight and distance independently:
-
-Freight is heavily skewed. Median to p75 is a gentle R$5 climb across a quarter of all items, then it accelerates sharply.
-
-| Percentile | Freight     |
-| ---------- | ----------- |
-| p50        | R$16.26     |
-| p75        | R$21.15     |
-| p90        | R$34.04     |
-| p95        | R$45.12     |
-| p99        | **R$84.52** |
-| max        | R$409.68    |
-
-p95 was used as the high-freight threshold to keep a workable sample of 5,630 items, but the real break is at **p99**: p90 to p95 adds R$11, p95 to p99 adds R$39, and p99 to max adds R$325.
-
-**Weight:**
-
-| Band                | Items   | Avg weight | Avg freight |
-| ------------------- | ------- | ---------- | ----------- |
-| High freight (>p95) | 5,630   | 10,264g    | R$71.37     |
-| Normal freight      | 107,020 | 1,664g     | R$17.29     |
-
-6.2 times heavier, 4.1 times the freight.
+- Heavier items cost more to ship, which is expected. The 5% of items with the highest freight weigh 10.3kg on average. The other 95% weigh 1.7kg. The heaviest items are 6 times heavier and cost 4 times more to ship.
+  
+- Weight is not the major driver of freight prices. Across distance bands, the average weight stays between 1.97kg and 2.18kg while freight climbs from R$13.16 to R$35.92. That is a 173% rise on parcels of roughly the same weight.
 
 **Distance, with weight effectively held constant:**
 
@@ -338,121 +317,99 @@ p95 was used as the high-freight threshold to keep a workable sample of 5,630 it
 | 1500-2000km | 3,638  | R$35.49     | 2,189g     |
 | Over 2000km | 6,402  | R$35.92     | 1,977g     |
 
-Average weight never leaves the 1,977g to 2,189g range while **average freight rises 173%**. Whatever is driving that cost, it is not the parcels getting heavier.
+The same pattern shows up by state:
 
-**Location, which is the same story in a different unit:**
+| State | Orders | Avg freight | % high freight |
+|---|---|---|---|
+| AC (Acre) | 81 | R$40.07 | 30.43% |
+| RR (Roraima) | 45 | R$43.32 | 29.41% |
+| PB (Paraíba) | 531 | R$42.75 | 27.17% |
+| MG (Minas Gerais) | 11,496 | R$20.62 | 4.10% |
+| SP (São Paulo) | 41,125 | R$15.15 | 2.21% |
 
-| State             | Orders | Avg freight | % high freight |
-| ----------------- | ------ | ----------- | -------------- |
-| AC (Acre)         | 81     | R$40.07     | **30.43%**     |
-| RR (Roraima)      | 45     | R$43.32     | 29.41%         |
-| PB (Paraíba)      | 531    | R$42.75     | 27.17%         |
-| RO (Rondônia)     | 246    | R$41.13     | 26.71%         |
-| PI (Piauí)        | 490    | R$39.16     | 25.05%         |
-| MG (Minas Gerais) | 11,496 | R$20.62     | 4.10%          |
-| SP (São Paulo)    | 41,125 | R$15.15     | **2.21%**      |
+- Acre has 13.8x São Paulo's rate of high-freight orders. The expensive states are in the remote nortern areas, which the cheap rates are in the industrial southeast.
 
-Acre against São Paulo: **13.8 times the high-freight rate and 2.6 times the average cost.** The top of the list is the remote north, the bottom is the southeast industrial core.
+### Nothing except delivery moves the review score:
 
-Neither driver explains freight alone. Heavy parcels cost more at any distance, and distant parcels cost more at any weight. It is the same geography that produces the delivery finding, expressed in money instead of days.
+**Category** - 4.35 at the top, 4.03 at the bottom. A 0.32 spread across thirteen very different product types.
 
-### Review scores are flat across everything except delivery:
+**Payment type** - 4.19 to 4.08. A 0.11 spread.
 
-Having found how hard lateness hits the score, the obvious check is whether anything else moves it. Almost nothing does.
-
-**By category** - Books & Media 4.35 at the top, Home & Furniture 4.03 at the bottom. A 0.32 spread across thirteen wildly different product types.
-
-**By payment type** - debit_card 4.19, boleto 4.12, credit_card 4.12, voucher 4.08. A 0.11 spread.
-
-**By price** - the only one with a clean pattern, and it is small:
+**Price** - the only clear pattern, and it is small:
 
 | Order value | Orders | Avg score |
-| ----------- | ------ | --------- |
-| Under R$50  | 29,070 | 4.18      |
-| R$50-100    | 27,988 | 4.13      |
-| R$100-200   | 25,555 | 4.10      |
-| R$200-500   | 11,294 | 4.00      |
-| R$500+      | 3,560  | 3.96      |
+|---|---|---|
+| Under R$50 | 29,070 | 4.18 |
+| R$50-100 | 27,988 | 4.13 |
+| R$100-200 | 25,555 | 4.10 |
+| R$200-500 | 11,294 | 4.00 |
+| R$500+ | 3,560 | 3.96 |
 
-Every band drops, with no exceptions, which makes it a real effect rather than noise. Expectations scale with spend. But the total range is 0.22 points against delivery's **2.69**.
-
-The share of 1-2 star reviews tells the same story. Across categories it runs from 10.17% for Food & Drinks to 15.67% for Home & Furniture - a 5.5 point band spanning books, furniture, electronics and perfume. Product type barely matters.
-
-Overall, **13,306 of 96,083 reviews are 1 or 2 stars, or 13.85%**. Roughly one in seven.
-
-A driver common to every order is doing the work here, not product quality. The two lowest-scoring categories, Home & Furniture and Electronics & Computers, are also the two bulkiest, which points back at freight, damage risk and delivery complexity rather than at the products themselves.
+Every band drops with no exceptions, so it is a real effect where customers expect more when they spend more. But the whole range is 0.22 points, against delivery's 2.69 spread.
 
 ## Delivery Health Summary
 
-| Area                  | Rating | Position                                                   |
-| --------------------- | ------ | ---------------------------------------------------------- |
-| On-time rate          | 🟢     | 93% of orders arrive on or before the promised date        |
-| Seller dispatch       | 🟢     | Flat at ~3 days regardless of distance or seller city      |
-| Approval speed        | 🟢     | Median 0 days; the boleto lag is customer-side             |
-| Estimate accuracy     | 🟡     | Estimates are met, but missing one costs 1.3 review points |
-| Carrier transit       | 🔴     | ~9 of every 12.5 days, and scales with distance            |
-| Long-haul reliability | 🔴     | Spread widens from 5-11 days to 17-29 days past 2000km     |
-| Repeat purchase       | 🔴     | 97% of customers order exactly once                        |
+| Area | | Position |
+|---|---|---|
+| On-time rate | 🟢 | 93% arrive on or before the promised date |
+| Seller dispatch | 🟢 | 2 days at every distance |
+| Approval speed | 🟢 | Median 0 days; the boleto lag is customer-side |
+| Delivery dates | 🟡 | Usually met, but a late delivery drops the review score by 1.3 points |
+| Carrier transit | 🔴 | The carrier holds the parcel for 9 of the 12.5 days |
+| Long-haul routes | 🔴 | Parcels going over 2,000km take 15 days in transit, against 3 for nearby ones|
+| Repeat purchase | 🔴 | 97% of customers order exactly once |
 
 > **Final verdict:** operationally, Olist and its sellers are performing. The platform's delivery failures, its worst review scores and its highest freight costs all trace back to the same carrier network crossing the same distances, and none of it is within the sellers' control.
 
 ## Recommendations
 
-**1. Pad delivery estimates for long-haul routes:**
+**1. Give longer delivery estimates on long-haul routes.** 
 
-The review data says customers punish a missed promise far more than a slow one. Transit past 2000km ranges from 17 to 29 days, so an estimate built on the median will be missed roughly half the time. Widening estimates on the routes where variance is highest would raise satisfaction without changing a single day of actual delivery time.
+Median transit past 2,000km is 15 days against 3 days under 250km. Adding a few buffer days to estimates on the longest routes means fewer orders arrive late, without changing a single delivery day.
 
 **2. Stop measuring sellers on delivery time:**
 
-Dispatch is flat at 3 days regardless of seller city, and 111 of the 114 worst deliveries had faster-than-average dispatch. Any seller scorecard built on total delivery time is grading merchants on carrier performance. Measure dispatch, which they control, and nothing after it.
+Dispatch is 2 days at every distance, and 111 of the 114 worst deliveries were dispatched faster than average. A scorecard built on total delivery time grades merchants on carrier performance. Measure sellers performance based on dispatch and not full delivery.
 
 **3. Treat the carrier leg as the primary intervention point:**
 
-Nine of every 12.5 days sit between carrier collection and the customer's door. This is where any improvement has to come from, whether that means regional carriers on long routes, a northern distribution point, or renegotiated terms.
+9 of every 12.5 days sit between carrier collection and the customer's door. This is where any improvement has to come from, whether that means regional carriers on long routes, a northern distribution point, or renegotiated terms.
 
 **4. Investigate the 6,000 on-time one-star reviews:**
 
-6.6% of orders that arrived on schedule still scored one star. Delivery does not explain those. Product condition, accuracy and packaging are the obvious candidates, and the review text would answer it directly.
+6.6% of orders that arrived on schedule still scored one star. Delivery does not explain those. Product condition, accuracy and packaging are likely causes
 
 **5. Build a repeat-purchase motion:**
 
-97% of customers order once. Every real of revenue in this dataset was acquired fresh. Even shifting that rate by a few points changes the economics of the platform more than any operational fix listed above.
+97% of customers order once. Every real of revenue in this dataset was acquired fresh. Moving that by a few points changes the platform's economics more than any operational fix above.
 
 **6. Price freight on distance as well as weight:**
 
-Freight rises 173% across distance bands while average weight stays flat at 2kg. If pricing is weight-led, long-haul orders are being underpriced relative to what they cost to move, and the northern states are where that gap is widest.
+Freight rises 173% across distance bands while average weight stays flat at 2kg. If pricing is weight-led, long-haul orders are underpriced, and the northern states are where the gap is widest.
 
 ## Limitations
 
-* **Straight-line distance, not road distance.** `ST_DistanceSphere` measures as the crow flies. Brazil's road network is far denser in the southeast than in the north, so the far bands understate real travel distance. This strengthens the distance finding rather than weakening it, but it means the absolute kilometre figures are floors, not actuals.
-
-* **The distance analysis covers 536 of 4,037 cities.** The 20-order guard is doing necessary work - without it, single-order cities produce impossible values including negative transit times - but it excludes the long tail, and the long tail is disproportionately remote.
-
-* **Average price rises with distance too.** Across the freight distance bands, average item price climbs from R$105 to R$157 while weight stays flat. Distance and item value are therefore not fully separated in the freight analysis. Weight is controlled for; value is not.
-
-* **The dashboard measures freight at order grain, the SQL at item grain.** `order_analysis` carries freight as an order total, so the Power BI freight figures are coarser than the item-level numbers reported above. Directionally identical, not numerically identical.
-
-* **"Carrier to customer" is a single undifferentiated gap.** It covers depot handling, road time, customs and failed delivery attempts with no way to distinguish them. The analysis shows *where* the time goes, not *why*.
-
-* **680 orders have negative dispatch times** and 20 have negative transit times, recorded as the carrier receiving a parcel before it was approved. That is 0.7% of orders, small but not negligible. They are reported rather than silently dropped, and excluded from the timing averages they would distort.
-
-* **Three orders have no line items** and 1,424 have no category, which accounts for small discrepancies in order counts between queries.
-
-* **The data window is 23 months, not 24**, and one of the three years is a two-month stub. Only 2017 is complete, so seasonality can only be read from a single year, and in a business growing at 138% annually even that curve is mostly growth rather than season.
-
-* **No review text.** The comment columns could not be imported, so the bimodal 45+ distribution and the 6,000 on-time one-star reviews are both left as open questions when the text would likely answer them.
+- Straight-line distance, not road distance. Brazil's road network is denser in the southeast, so the far bands understate real travel.
+- The distance analysis covers 536 of 4,037 cities. Using the minimum of 20 order for each city, the long tail is dropped.
+- Distance and order value are not fully separated. Average item price rises from R$105 to R$157 across the freight distance bands.
+- Carrier-to-customer is one undivided gap covering depot handling, road time and failed delivery attempts.
+- 680 orders have negative dispatch times and 20 have negative transit times. 0.7% of orders, excluded from timing averages.
+- Three orders have no line items, 1,424 have no category.
+- Only 2017 is a complete year, so seasonality comes from one year of a business growing 138% annually.
 
 ## Tools Used
 
-| Tool        | Purpose                                                               |
-| ----------- | --------------------------------------------------------------------- |
-| PostgreSQL  | Table creation, cleaning, transformation and analysis                 |
-| PostGIS     | `ST_DistanceSphere` for seller-to-customer distance                   |
-| SQL         | CTEs, window functions, `DISTINCT ON`, conditional aggregation, views |
-| Power BI    | Dashboard, data model, date table                                     |
-| DAX         | Banding columns, measures, filter context with `CALCULATE`            |
-| DBeaver     | Query development and execution                                       |
-| Power Query | Resolving the reviews CSV encoding failure, type handling on load     |
+SQL is in `/sql`, numbered in execution order. `order_analysis` has to run before the queries built on it.
+
+| Tool | Purpose |
+|---|---|
+| PostgreSQL | Table creation, cleaning, transformation, analysis |
+| PostGIS | `ST_DistanceSphere` for seller-to-customer distance |
+| SQL | CTEs, window functions, `DISTINCT ON`, conditional aggregation, views |
+| Power BI | Dashboard, data model, date table |
+| DAX | Banding columns, measures, `CALCULATE` |
+| DBeaver | Query development |
+| Power Query | Reviews CSV fix, type handling on load |
 
 **Temidayo Olubayo**
 Data Analytics | SQL | PostgreSQL | Power BI
