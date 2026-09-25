@@ -237,7 +237,7 @@ The worst cases tell the same story. 114 orders arrived more than 50 days late. 
 
 The sellers handed these parcels over faster than average. while the carrier held them for over three months. 111 of the 114 were delayed in transit, not at the seller.
 
-Three checks, same answer. Sellers take 2 days to dispatch whether the customer is nearby or across the country. Transit time grows with distance, even for the same seller. And on the worst deliveries, the seller was fast and the carrier was not. **The delay is with the carrier, so pushing sellers harder will not fix it.**
+Sellers take 2 days to dispatch whether the customer is nearby or across the country. Transit time grows with distance, even for the same seller. And on the worst deliveries, the seller was fast and the carrier was not. **The delay is with the carrier, so pushing sellers harder will not fix it.**
 
 > **Olist's delivery problem is a carrier problem. Seller-facing interventions will not move the number.**
 
@@ -256,13 +256,13 @@ Three checks, same answer. Sellers take 2 days to dispatch whether the customer 
 
 So how long the delay lasts barely matters. What matters is whether the delivery date was met.
 
-**Giving customers a longer, more realistic delivery date would raise scores more than delivering faster would.** A date that is met beats an optimistic one that is missed by two days.
+**Giving customers a longer, more realistic delivery date would raise scores higher more than delivering faster would.** A date that is met beats an optimistic one that is missed by two days.
 
-### The worst deliveries are rated by two opposed camps:
+### Half the worst deliveries get 1 star, a third get 4 or 5:
 
 <img width="552" height="279" alt="image" src="https://github.com/user-attachments/assets/637b4997-7a32-457e-9278-eef781dc4f04" />
 
-The 45+ band breaks the pattern, scoring 2.54 where the bands above it sit near 1.6. A mean of 2.54 could mean everyone was mildly annoyed. The distribution says otherwise: **49.3% give one star and 36.8% give four or five.** Not a spread of mild irritation, two distinct groups.
+The 45+ band breaks the pattern by scoring 2.54 where the other late bands above it sit near 1.6. A mean of 2.54 could mean everyone was mildly annoyed. 49.3% gave 1 star and 36.8% gave 4 or 5 — two opposite reactions to the same delivery.
 
 Three candidate explanations, none of which this data can separate:
 
