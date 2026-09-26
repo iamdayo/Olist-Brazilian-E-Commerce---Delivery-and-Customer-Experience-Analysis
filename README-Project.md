@@ -12,11 +12,9 @@ This analysis works through 98,202 orders placed between 2016 and 2018 to answer
 
 ## Business Context
 
-Olist is a marketplace, not a retailer. Small Brazilian merchants list their products through Olist, and hand them to a carrier. Olist owns the platform and the review score. It does not own the truck.
+Olist is a marketplace, not a retailer. Small Brazilian merchants list their products through Olist, pack their own orders, and hand them to a carrier. Olist owns the platform and the review score. It does not own the truck.
 
 So when a delivery goes wrong, the customer blames the platform and the seller carries the rating. The question is not how late deliveries are, but which part of the journey loses the time. A seller sitting on a parcel is fixable with dispatch targets. A carrier taking 99 days to cross the country is not.
-
-This analysis splits the journey into stages, measures each one, and then tests the answer by holding the seller constant.
 
 ## Table of Contents
 
@@ -45,11 +43,7 @@ Nine CSV files covering September 2016 to August 2018, loaded into PostgreSQL.
 | geolocation | one of several coordinates per zip | Latitude, longitude |
 | category_translation | a category | PT to EN names |
 
-Two grain issues shape almost every query in this project.
-
-`order_items` holds one row per line item and `payments` holds one row per payment, so a three-item order paid in two parts produces multiple rows in each. Any query joining either table must use `COUNT(DISTINCT order_id)`, otherwise it counts items or payments and reports them as orders.
-
-`customers` has one row per **order**, not per person. A single shopper who buys twice appears twice with two different `customer_id` values but one shared `customer_unique_id`. Counting `customer_id` counts orders wearing a customer's clothes; `customer_unique_id` counts people.
+`COUNT(DISTINCT order_id)` was used to count orders wherever `order_items` or `payments` was joined. `customer_unique_id` was used to count customers.
 
 ## Data Preparation
 
@@ -60,7 +54,7 @@ Two grain issues shape almost every query in this project.
   
 ### Conventions used
 - REVENUE: `SUM(PRICE)`, freight tracked separately.
-- `canceled`, `unavailable` and `created` order as excluded throughout.
+- `canceled`, `unavailable` and `created` order are excluded throughout.
 - Delivery time: Whole delivery process, from time of purchase to customer doorstep
 
 **Terms used in this analysis:**
@@ -125,7 +119,7 @@ For a fair comparison, January to August for each year was used to compare reven
 | 3 | 188 |
 | 4+ | 48 |
 
-Almost every customer buys once and never returns. None of the revenue above is repeat business, and each order is majorly from somene new.
+Almost every customer buys once and never returns. None of the revenue above is repeat business, and each order is majorly from someone new.
 
 ### Growth is fastest in the smallest categories:
 
@@ -156,7 +150,7 @@ Construction & Tools category grew in orders from 106 to 1680, a **+1,484%** gro
 
 On average, every city in the dataset receives its orders before the estimated date.
 
-That is true, but an average can hide a lot. If half a city's orders arrive ten days early and the other half arrive five days late, the city still averages out as early, which the customers in the second half still got a late parcel.
+That is true, but an average can hide a lot. If half a city's orders arrive ten days early and the other half arrive five days late, the city still averages out as early, but the customers in the second half still got a late parcel.
 
 The table below counts how many individual orders arrived after their estimated delivery date:
 
@@ -239,8 +233,6 @@ The sellers handed these parcels over faster than average. while the carrier hel
 
 Sellers take 2 days to dispatch whether the customer is nearby or across the country. Transit time grows with distance, even for the same seller. And on the worst deliveries, the seller was fast and the carrier was not. **The delay is with the carrier, so pushing sellers harder will not fix it.**
 
-> **Olist's delivery problem is a carrier problem. Seller-facing interventions will not move the number.**
-
 ### Customers punish the broken promise, not the wait:
 
 | Lateness | Reviewed orders | Avg score | 1★ | 2★ | 3★ | 4★ | 5★ |
@@ -303,7 +295,7 @@ Once payment clears, boleto orders are delivered slightly faster than credit car
 
 - Heavier items cost more to ship, which is expected. The 5% of items with the highest freight weigh 10.3kg on average. The other 95% weigh 1.7kg. The heaviest items are 6 times heavier and cost 4 times more to ship.
   
-- Weight is not the major driver of freight prices. Across distance bands, the average weight stays between 1.97kg and 2.18kg while freight climbs from R$13.16 to R$35.92. That is a 173% rise on parcels of roughly the same weight.
+- Weight is not the only driver of freight prices. Across distance bands, the average weight stays between 1.97kg and 2.18kg while freight climbs from R$13.16 to R$35.92. That is a 173% rise on parcels of roughly the same weight.
 
 **Distance, with weight effectively held constant:**
 
@@ -327,7 +319,7 @@ The same pattern shows up by state:
 | MG (Minas Gerais) | 11,496 | R$20.62 | 4.10% |
 | SP (São Paulo) | 41,125 | R$15.15 | 2.21% |
 
-- Acre has 13.8x São Paulo's rate of high-freight orders. The expensive states are in the remote nortern areas, which the cheap rates are in the industrial southeast.
+- Acre has 13.8x São Paulo's rate of high-freight orders. The expensive states are in the remote northern areas, while the cheap rates are in the industrial southeast.
 
 ### Nothing except delivery moves the review score:
 
@@ -381,7 +373,7 @@ Dispatch is 2 days at every distance, and 111 of the 114 worst deliveries were d
 
 **5. Build a repeat-purchase motion:**
 
-97% of customers order once. Every real of revenue in this dataset was acquired fresh. Moving that by a few points changes the platform's economics more than any operational fix above.
+97% of customers order once. Each revenue in this dataset was practically acquired fresh. Moving that by a few points changes the platform's economics more than any operational fix above.
 
 **6. Price freight on distance as well as weight:**
 
@@ -396,6 +388,7 @@ Freight rises 173% across distance bands while average weight stays flat at 2kg.
 - 680 orders have negative dispatch times and 20 have negative transit times. 0.7% of orders, excluded from timing averages.
 - Three orders have no line items, 1,424 have no category.
 - Only 2017 is a complete year, so seasonality comes from one year of a business growing 138% annually.
+- No review text. The comment columns could not be imported, so there is no way to tell why the 45+ band splits the way it does, or why 6,000 on-time orders got one star.
 
 ## Tools Used
 
