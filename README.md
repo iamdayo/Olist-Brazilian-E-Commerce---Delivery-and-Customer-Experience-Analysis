@@ -6,9 +6,7 @@
 
 93% of orders arrive on or before the promised date. But being one day late drops the average review score from 4.29 to 2.99, and of the 114 worst deliveries in the dataset, 111 were never the seller's fault.
 
-This analysis works through 98,202 orders placed between 2016 and 2018 to answer a question that determines who should be held accountable:
-
-> **Whose fault is the late delivery?**
+This analysis works through 98,202 orders placed between 2016 and 2018 to find out which part of the journey loses the time, and so who should be held accountable for it.
 
 ## Business Context
 
@@ -26,10 +24,13 @@ So when a delivery goes wrong, the customer blames the platform and the seller c
 6. [Recommendations](#recommendations)
 7. [Limitations](#limitations)
 8. [Tools Used](#tools-used)
+9. [Repository Structure](#repository-structure)
 
 ## Dataset Overview
 
 Nine CSV files covering September 2016 to August 2018, loaded into PostgreSQL.
+
+**Source:** [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) on Kaggle (CC BY-NC-SA 4.0). The CSVs are not stored in this repo; download them from Kaggle to rerun the SQL.
 
 | Table | One row is | Contents |
 |---|---|---|
@@ -43,7 +44,7 @@ Nine CSV files covering September 2016 to August 2018, loaded into PostgreSQL.
 | geolocation | one of several coordinates per zip | Latitude, longitude |
 | category_translation | a category | PT to EN names |
 
-`COUNT(DISTINCT order_id)` was used to count orders wherever `order_items` or `payments` was joined. `customer_unique_id` was used to count customers.
+The three in bold need care. `order_items` and `payments` repeat the same order across several rows, so every query touching them counts orders with `COUNT(DISTINCT order_id)`. `customers` gets a new row per order, so `customer_unique_id` counts people and `customer_id` is only a join key.
 
 ## Data Preparation
 
@@ -54,8 +55,8 @@ Nine CSV files covering September 2016 to August 2018, loaded into PostgreSQL.
   
 ### Conventions used
 - REVENUE: `SUM(PRICE)`, freight tracked separately.
-- `canceled`, `unavailable` and `created` order are excluded throughout.
-- Delivery time: Whole delivery process, from time of purchase to customer doorstep
+- `canceled`, `unavailable` and `created` orders are excluded throughout.
+- Delivery time: the whole delivery process, from time of purchase to the customer's doorstep.
 
 **Terms used in this analysis:**
 
@@ -68,11 +69,11 @@ Nine CSV files covering September 2016 to August 2018, loaded into PostgreSQL.
 
 ## Dashboard
 
-Four pages, built on `order_analysis` view table, each page answering a question rather than displaying a metric.
+Four pages, built on the `order_analysis` view, each page answering a question rather than displaying a metric.
 
 ### Overview
 
-Revenue, orders, customers and average order value, growth overtime
+Revenue, orders, customers and average order value, growth over time.
 
 <img width="1281" height="722" alt="image" src="https://github.com/user-attachments/assets/ab3eac5c-69ef-4868-85ea-931131f71886" />
 
@@ -90,11 +91,11 @@ Score by lateness, full score distribution, category and price comparisons.
 
 ### Freight
 
-Freight by state, freight against distance
+Freight by state, freight against distance.
 
 <img width="1280" height="721" alt="image" src="https://github.com/user-attachments/assets/03c9082d-7810-4d23-87b3-5d5cb040f310" />
 
-The `.pbix` file is in `/powerbi` and connects to a local PostgreSQL instance.
+The `.pbix` file is in [`/powerbi`](powerbi/) and connects to a local PostgreSQL instance. Open it in Power BI Desktop to explore the report; to refresh the data, point the connection at your own database with the SQL below already run.
 
 ## Key Findings
 
@@ -119,7 +120,7 @@ For a fair comparison, January to August for each year was used to compare reven
 | 3 | 188 |
 | 4+ | 48 |
 
-Almost every customer buys once and never returns. None of the revenue above is repeat business, and each order is majorly from someone new.
+Almost every customer buys once and never returns. None of the revenue above is repeat business, and almost every order comes from someone new.
 
 ### Growth is fastest in the smallest categories:
 
@@ -144,7 +145,7 @@ January to August is compared for both years so the comparison is fair.
 
 Home & Furniture is the biggest category at R$3.35M and grew at half the rate of the small categories.
 
-Construction & Tools category grew in orders from 106 to 1680, a **+1,484%** growth.
+Construction & Tools grew from 106 orders to 1,680, a **+1,484%** growth.
 
 ### Every city delivers on time, and 6,534 orders were still late:
 
@@ -176,7 +177,7 @@ Each delivery broken into its three stages, in days:
 | Carrier → customer | **9.28** | 7 | 205 |
 | Total | 12.50 | 10 | 210 |
 
-Approval is effectively instant for most orders. Dispatch is short and consistent. Nearly three quarters of the journey sits in the carrier stage., **BUT WHY?**
+Approval is effectively instant for most orders. Dispatch is short and consistent. Nearly three quarters of the journey sits in the carrier stage. **But why?**
 
 ### Transit scales with distance. Dispatch does not:
 
@@ -229,7 +230,7 @@ The worst cases tell the same story. 114 orders arrived more than 50 days late. 
 | Median time with the carrier (transit) | 99 |
 | Longest time with the carrier | 205 |
 
-The sellers handed these parcels over faster than average. while the carrier held them for over three months. 111 of the 114 were delayed in transit, not at the seller.
+The sellers handed these parcels over faster than average, while the carrier held them for over three months. 111 of the 114 were delayed in transit, not at the seller.
 
 Sellers take 2 days to dispatch whether the customer is nearby or across the country. Transit time grows with distance, even for the same seller. And on the worst deliveries, the seller was fast and the carrier was not. **The delay is with the carrier, so pushing sellers harder will not fix it.**
 
@@ -248,18 +249,18 @@ Sellers take 2 days to dispatch whether the customer is nearby or across the cou
 
 So how long the delay lasts barely matters. What matters is whether the delivery date was met.
 
-**Giving customers a longer, more realistic delivery date would raise scores higher more than delivering faster would.** A date that is met beats an optimistic one that is missed by two days.
+**Giving customers a longer, more realistic delivery date would raise scores more than delivering faster would.** A date that is met beats an optimistic one that is missed by two days.
 
 ### Half the worst deliveries get 1 star, a third get 4 or 5:
 
 <img width="552" height="279" alt="image" src="https://github.com/user-attachments/assets/637b4997-7a32-457e-9278-eef781dc4f04" />
 
 The 45+ band breaks the pattern by scoring 2.54 where the other late bands above it sit near 1.6. 
-The 2.54 average is not one group of mildly annoyed customers and of the **144** reviews in this band, 49.3% gave 1 star and 36.8% gave 4 or 5, these are two opposite reactions to the same delivery.
+The 2.54 average is not one group of mildly annoyed customers. Of the **144** reviews in this band, 49.3% gave 1 star and 36.8% gave 4 or 5. These are two opposite reactions to the same delivery.
 
 Three possible explanations, none of which are provable with this data:
 
-- The angriest customers asked for a refund and moved on. These are custmers who are not possibly filling a survey two months later.
+- The angriest customers asked for a refund and moved on. They are not filling in a survey two months later.
 - Orders that never arrived have no delivery date, so they are not in this band at all. It only holds parcels that eventually turned up.
 - After waiting that long, customers assume the parcel is lost and when it finally arrives, it feels like good news.
 
@@ -274,7 +275,7 @@ One thing to note was that **6.6% of on-time orders still score one star**, whic
 | voucher | 3,745 | 4 | 0.107% |
 | credit_card | 75,615 | 40 | 0.053% |
 
-Boleto orders are likely to take over **5 days** to get approved, which is about 9x more time than credit card time takes, and it shows. 97 of the 149 slow orders are boleto payment types.
+Boleto orders are likely to take over **5 days** to get approved, about 9x the rate for credit card. 97 of the 149 slow orders are boleto payment types.
 
 _Boleto bancário is a printed bank slip. The customer checks out, gets a barcode, then pays it at a bank, ATM or app whenever they choose. The merchant sees nothing until the payment clears. So the purchase timestamp records when the slip was printed, and the approval timestamp records when the money arrived. The gap between them is the customer's own delay, not Olist's._
 
@@ -361,7 +362,7 @@ Median transit past 2,000km is 15 days against 3 days under 250km. Adding a few 
 
 **2. Stop measuring sellers on delivery time:**
 
-Dispatch is 2 days at every distance, and 111 of the 114 worst deliveries were dispatched faster than average. A scorecard built on total delivery time grades merchants on carrier performance. Measure sellers performance based on dispatch and not full delivery.
+Dispatch is 2 days at every distance, and 111 of the 114 worst deliveries were dispatched faster than average. A scorecard built on total delivery time grades merchants on carrier performance. Measure seller performance on dispatch and not full delivery.
 
 **3. Treat the carrier leg as the primary intervention point:**
 
@@ -369,11 +370,11 @@ Dispatch is 2 days at every distance, and 111 of the 114 worst deliveries were d
 
 **4. Investigate the 6,000 on-time one-star reviews:**
 
-6.6% of orders that arrived on schedule still scored one star. Delivery does not explain those. Product condition, accuracy and packaging are likely causes
+6.6% of orders that arrived on schedule still scored one star. Delivery does not explain those. Product condition, accuracy and packaging are likely causes.
 
 **5. Build a repeat-purchase motion:**
 
-97% of customers order once. Each revenue in this dataset was practically acquired fresh. Moving that by a few points changes the platform's economics more than any operational fix above.
+97% of customers order once. Almost all revenue in this dataset came from new customers. Moving that by a few points changes the platform's economics more than any operational fix above.
 
 **6. Price freight on distance as well as weight:**
 
@@ -382,7 +383,7 @@ Freight rises 173% across distance bands while average weight stays flat at 2kg.
 ## Limitations
 
 - Straight-line distance, not road distance. Brazil's road network is denser in the southeast, so the far bands understate real travel.
-- The distance analysis covers 536 of 4,037 cities. Using the minimum of 20 order for each city, the long tail is dropped.
+- The distance analysis covers 536 of 4,037 cities. With a minimum of 20 orders per city, the long tail is dropped.
 - Distance and order value are not fully separated. Average item price rises from R$105 to R$157 across the freight distance bands.
 - Carrier-to-customer is one undivided gap covering depot handling, road time and failed delivery attempts.
 - 680 orders have negative dispatch times and 20 have negative transit times. 0.7% of orders, excluded from timing averages.
@@ -391,8 +392,6 @@ Freight rises 173% across distance bands while average weight stays flat at 2kg.
 - No review text. The comment columns could not be imported, so there is no way to tell why the 45+ band splits the way it does, or why 6,000 on-time orders got one star.
 
 ## Tools Used
-
-SQL is in `/sql`, numbered in execution order. `order_analysis` has to run before the queries built on it.
 
 | Tool | Purpose |
 |---|---|
@@ -404,5 +403,34 @@ SQL is in `/sql`, numbered in execution order. `order_analysis` has to run befor
 | DBeaver | Query development |
 | Power Query | Reviews CSV fix, type handling on load |
 
-**Temidayo Olubayo**
+## Repository Structure
+
+```
+├── README.md
+├── sql/
+│   ├── 01_table_creation.sql
+│   ├── 02_data_quality_checks.sql
+│   ├── 03_cleaning_and_categories.sql
+│   ├── 04_order_status.sql
+│   ├── 05_overview.sql
+│   ├── 06_customer_behaviour.sql
+│   ├── 07_location_and_product.sql
+│   ├── 08_delivery.sql
+│   ├── 09_approval_and_payment.sql
+│   ├── 10_reviews.sql
+│   ├── 11_order_analysis_view.sql
+│   └── 12_freight_and_others.sql
+└── powerbi/
+    └── olist.pbix
+```
+
+**To reproduce:**
+
+1. Download the nine CSVs from [Kaggle](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce).
+2. Create a PostgreSQL database with the PostGIS extension enabled (`CREATE EXTENSION postgis;`).
+3. Run [`01_table_creation.sql`](sql/01_table_creation.sql) and import each CSV into its table.
+4. Run the files in [`/sql`](sql/) in number order. Run [`11_order_analysis_view.sql`](sql/11_order_analysis_view.sql) before the last section of `08_delivery.sql` and before `12_freight_and_others.sql`, as both query the `order_analysis` view.
+5. Open [`olist.pbix`](powerbi/olist.pbix) and point its PostgreSQL connection at your database.
+
+**Temidayo Olubayo**  
 Data Analytics | SQL | PostgreSQL | Power BI
